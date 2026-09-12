@@ -1,0 +1,671 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --paper:#F3F5EF;
+    --card:#FBFCF9;
+    --ink:#1B2A22;
+    --ink-soft:#5C6B63;
+    --rule:#DCE2D6;
+    --gold:#B38E48;
+    --sl:#0E6B5C;
+    --ind:#C24A12;
+    --rem:#A81E2E;
+    --buy:#6B5B95;
+    --gnd:#2D5C87;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .wrap{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    padding:0 0 60px;
+  }
+  .inner{max-width:760px;margin:0 auto;padding:0 18px}
+
+  /* ---------- masthead ---------- */
+  header{padding:34px 0 20px}
+  h1{
+    font-family:"Iowan Old Style",Palatino,Georgia,serif;
+    font-weight:600;
+    font-size:30px;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    margin:0 0 4px;
+  }
+  h1 .amp{color:var(--gold);font-style:italic;font-weight:400}
+  .sub{color:var(--ink-soft);font-size:13.5px;margin:0}
+
+  .counts{
+    display:flex;gap:0;margin:20px 0 0;
+    border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  }
+  .count{flex:1;padding:12px 10px 11px;border-right:1px solid var(--rule)}
+  .count:last-child{border-right:0}
+  .count b{
+    display:block;
+    font-family:"Iowan Old Style",Palatino,Georgia,serif;
+    font-size:23px;font-weight:600;line-height:1;
+  }
+  .count span{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:5px}
+  .count.sl b{color:var(--sl)}
+  .count.ind b{color:var(--ind)}
+
+  /* ---------- controls ---------- */
+  .bar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;padding:16px 0 4px}
+  .chip{
+    border:1px solid var(--rule);background:var(--card);color:var(--ink-soft);
+    border-radius:999px;padding:5px 11px;font-size:12.5px;cursor:pointer;
+    font-family:inherit;
+  }
+  .chip:hover{border-color:var(--gold)}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+  .bar .spacer{flex:1}
+  .ghost{background:none;border:0;color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:inherit;text-decoration:underline;text-underline-offset:3px}
+
+  /* ---------- weeks ---------- */
+  .week{
+    position:relative;
+    padding-left:22px;
+    margin-top:26px;
+  }
+  .week:before{
+    content:"";position:absolute;left:5px;top:9px;bottom:-26px;width:1px;background:var(--rule);
+  }
+  .week:last-of-type:before{display:none}
+  .week:after{
+    content:"";position:absolute;left:0;top:6px;width:11px;height:11px;border-radius:50%;
+    background:var(--paper);border:2px solid var(--rule);
+  }
+  .week.now:after{background:var(--gold);border-color:var(--gold)}
+  .week.milestone:after{background:var(--ink);border-color:var(--ink)}
+
+  .whead{display:flex;align-items:baseline;gap:9px;cursor:pointer;user-select:none}
+  .wno{
+    font-family:"Iowan Old Style",Palatino,Georgia,serif;
+    font-size:17px;font-weight:600;
+  }
+  .wdate{font-size:13px;color:var(--ink-soft)}
+  .wprog{margin-left:auto;font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+  .wnote{
+    font-size:12.5px;margin:5px 0 0;padding:6px 10px;border-radius:5px;
+    background:rgba(179,142,72,.12);color:#6E5620;border-left:2px solid var(--gold);
+  }
+  .week.now .wno{color:var(--gold)}
+
+  .tasks{margin:11px 0 0;padding:0;list-style:none}
+  li.t{
+    display:flex;align-items:flex-start;gap:10px;
+    background:var(--card);border:1px solid var(--rule);border-radius:7px;
+    padding:9px 10px;margin-bottom:6px;
+    border-left-width:3px;
+  }
+  li.t.done{opacity:.45}
+  li.t.done .txt{text-decoration:line-through}
+  li.t.sl{border-left-color:var(--sl)}
+  li.t.ind{border-left-color:var(--ind)}
+  li.t.rem{border-left-color:var(--rem)}
+  li.t.buy{border-left-color:var(--buy)}
+  li.t.gnd{border-left-color:var(--gnd)}
+  li.t input[type=checkbox]{margin:3px 0 0;width:16px;height:16px;flex:none;accent-color:var(--sl);cursor:pointer}
+  .body{flex:1;min-width:0}
+  .txt{font-size:14px}
+  .note{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+  .acts{display:flex;gap:2px;flex:none;opacity:.35}
+  li.t:hover .acts,li.t:focus-within .acts{opacity:1}
+  .acts button{
+    border:0;background:none;color:var(--ink-soft);cursor:pointer;
+    font-size:14px;line-height:1;padding:3px 4px;border-radius:4px;font-family:inherit;
+  }
+  .acts button:hover{background:var(--rule);color:var(--ink)}
+  .addrow{display:flex;gap:6px;margin-top:2px}
+  .addrow input{
+    flex:1;border:1px dashed var(--rule);background:none;border-radius:6px;
+    padding:7px 9px;font-size:13px;font-family:inherit;color:var(--ink);
+  }
+  .addrow input:focus{outline:none;border-color:var(--gold);border-style:solid}
+  .addrow select{
+    border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:0 6px;font-size:12px;font-family:inherit;color:var(--ink-soft);
+  }
+
+  /* ---------- vendor table ---------- */
+  .panel{margin-top:38px;border-top:2px solid var(--ink);padding-top:16px}
+  .panel h2{
+    font-family:"Iowan Old Style",Palatino,Georgia,serif;
+    font-size:19px;font-weight:600;margin:0 0 3px;
+  }
+  .panel p.lead{font-size:13px;color:var(--ink-soft);margin:0 0 14px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{
+    text-align:left;font-weight:600;font-size:11.5px;color:var(--ink-soft);
+    padding:0 6px 7px;border-bottom:1px solid var(--rule);
+  }
+  th.c,td.c{text-align:center;width:58px}
+  td{padding:8px 6px;border-bottom:1px solid var(--rule);vertical-align:top}
+  td.v b{display:block;font-weight:600}
+  td.v span{color:var(--ink-soft);font-size:12px}
+  td.amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table input[type=checkbox]{width:16px;height:16px;accent-color:var(--rem);cursor:pointer}
+  tfoot td{font-weight:600;border-bottom:0}
+  .stack{display:none}
+
+  footer{margin-top:28px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--rule);padding-top:12px}
+
+  /* ---------- setup ---------- */
+  #setup{display:none;padding:30px 0 10px}
+  #setup.on{display:block}
+  body.setup #planner{display:none}
+  .card{background:var(--card);border:1px solid var(--rule);border-top:3px solid var(--gold);border-radius:9px;padding:20px}
+  .card h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:20px;font-weight:600;margin:0 0 6px}
+  .card p{font-size:13.5px;color:var(--ink-soft);margin:0 0 16px;max-width:60ch}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+  .field .hint{font-weight:400;color:var(--ink-soft);font-size:12.5px}
+  .field input{
+    width:100%;border:1px solid var(--rule);border-radius:6px;background:var(--paper);
+    padding:10px;font-size:13.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--gold);outline-offset:-1px;border-color:var(--gold)}
+  .btn{
+    background:var(--ink);color:var(--paper);border:0;border-radius:6px;
+    padding:10px 20px;font-size:14px;font-family:inherit;cursor:pointer;
+  }
+  .btn:hover{background:var(--sl)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .msg{font-size:13px;margin-top:12px;padding:9px 11px;border-radius:6px;display:none}
+  .msg.on{display:block}
+  .msg.bad{background:rgba(168,30,46,.09);color:var(--rem);border-left:2px solid var(--rem)}
+  .msg.ok{background:rgba(14,107,92,.09);color:var(--sl);border-left:2px solid var(--sl)}
+
+  @media (max-width:560px){
+    h1{font-size:25px}
+    .count b{font-size:20px}
+    .acts{opacity:1}
+    table{display:none}
+    .stack{display:block}
+    .vcard{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--rem);border-radius:7px;padding:10px;margin-bottom:7px}
+    .vcard b{display:block}
+    .vcard .meta{font-size:12px;color:var(--ink-soft);margin-bottom:7px}
+    .vcard label{font-size:12.5px;margin-right:14px}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    li.t{transition:opacity .15s ease}
+  }
+</style>
+
+<div class="wrap"><div class="inner">
+  <header>
+    <h1>Apurva <span class="amp">&</span> Nisal</h1>
+    <p class="sub">Sangeet 3 Dec · Hindu wedding 5 Dec · Poruwa at Shangri-La, Colombo 30 Dec</p>
+    <div class="counts">
+      <div class="count ind"><b id="c1">–</b><span>weeks to sangeet</span></div>
+      <div class="count ind"><b id="c2">–</b><span>weeks to Hindu wedding</span></div>
+      <div class="count sl"><b id="c3">–</b><span>weeks to Colombo</span></div>
+    </div>
+  </header>
+
+  <section id="setup">
+    <div class="card">
+      <h2>Connect your Supabase project</h2>
+      <p>This is a one-off. In Supabase, open Project Settings, then API, and copy the two values below. Once connected, the link you share carries the connection with it, so nobody else has to do this.</p>
+      <div class="field">
+        <label for="inUrl">Project URL <span class="hint">— looks like https://abcdefgh.supabase.co</span></label>
+        <input id="inUrl" type="url" spellcheck="false" autocapitalize="off" placeholder="https://abcdefgh.supabase.co">
+      </div>
+      <div class="field">
+        <label for="inKey">Anon public key <span class="hint">— the long one starting eyJ, not service_role</span></label>
+        <input id="inKey" type="text" spellcheck="false" autocapitalize="off" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…">
+      </div>
+      <button class="btn" id="connect">Connect</button>
+      <div class="msg" id="setupMsg"></div>
+    </div>
+  </section>
+
+  <div id="planner">
+  <div class="bar" id="filters">
+    <button class="chip" data-f="all" aria-pressed="true">Everything</button>
+    <button class="chip" data-f="sl" aria-pressed="false"><span class="dot" style="background:var(--sl)"></span>Sri Lanka</button>
+    <button class="chip" data-f="ind" aria-pressed="false"><span class="dot" style="background:var(--ind)"></span>Indian &amp; dance</button>
+    <button class="chip" data-f="rem" aria-pressed="false"><span class="dot" style="background:var(--rem)"></span>Vendors</button>
+    <button class="chip" data-f="buy" aria-pressed="false"><span class="dot" style="background:var(--buy)"></span>Buy &amp; pack</button>
+    <button class="chip" data-f="gnd" aria-pressed="false"><span class="dot" style="background:var(--gnd)"></span>On the ground</button>
+    <span class="spacer"></span>
+    <button class="ghost" id="hideDone">Hide done</button>
+  </div>
+
+  <div id="weeks"></div>
+
+  <section class="panel">
+    <h2>Vendor reminder tracker</h2>
+    <p class="lead">Two checkpoints per vendor: the 5-week call around 23–29 Nov, then the 1-week call on 21–23 Dec. Final payment figures are the outstanding balances from your budget sheet — confirm each due date and method when you make the 5-week call.</p>
+    <table>
+      <thead><tr><th>Vendor</th><th class="amt">Balance (LKR)</th><th class="c">5 wks</th><th class="c">1 wk</th></tr></thead>
+      <tbody id="vbody"></tbody>
+      <tfoot><tr><td>Total outstanding</td><td class="amt" id="vtotal"></td><td class="c"></td><td class="c"></td></tr></tfoot>
+    </table>
+    <div class="stack" id="vstack"></div>
+  </section>
+
+  <footer>
+    <span id="saved">Connecting…</span> ·
+    <button class="ghost" id="copylink">Copy the shared link</button> ·
+    <button class="ghost" id="settings">Connection settings</button> ·
+    <button class="ghost" id="reset">Reset planner</button>
+  </footer>
+  </div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const CATS={sl:"Sri Lanka",ind:"Indian & dance",rem:"Vendors",buy:"Buy & pack",gnd:"On the ground"};
+
+const WEEKS=[
+ {s:"2026-09-14",e:"2026-09-20",note:"Foundation week. Song choices and the guest list unblock almost everything else."},
+ {s:"2026-09-21",e:"2026-09-27"},
+ {s:"2026-09-28",e:"2026-10-04"},
+ {s:"2026-10-05",e:"2026-10-11"},
+ {s:"2026-10-12",e:"2026-10-18"},
+ {s:"2026-10-19",e:"2026-10-25"},
+ {s:"2026-10-26",e:"2026-11-01"},
+ {s:"2026-11-02",e:"2026-11-08",note:"Paperwork week — the Day Agenda, nekath timings and song list all get filled in."},
+ {s:"2026-11-09",e:"2026-11-15"},
+ {s:"2026-11-16",e:"2026-11-22",note:"Your sheet says the final hotel discussion happens the third week of November.",m:1},
+ {s:"2026-11-23",e:"2026-11-29",note:"Five weeks out. Every confirmed vendor gets the first reminder this week.",m:1},
+ {s:"2026-11-30",e:"2026-12-06",note:"Sangeet Thursday, Hindu wedding Saturday. Sri Lankan tasks are deliberately near-empty.",m:1},
+ {s:"2026-12-07",e:"2026-12-13"},
+ {s:"2026-12-14",e:"2026-12-20",note:"Last full week in Melbourne. Packing happens here, not on the plane."},
+ {s:"2026-12-21",e:"2026-12-27",note:"One-week reminders, parents land Tuesday, you land Friday, final headcount Saturday.",m:1},
+ {s:"2026-12-28",e:"2027-01-03",note:"Wedding Wednesday 30 December.",m:1}
+];
+
+const T=[
+// ---- week 1
+["sl",0,"Finish the guest list with full surnames","The Full Name column is half-built. Target is 150 pax plus vendors."],
+["sl",0,"Break the guest list into tables of 10","Fill the Table Number column so seating, plates and cake pieces total correctly."],
+["rem",0,"Ask Theresa for a written vendor sheet","Name, mobile, exactly what's contracted, balance owing, due date, payment method. This answers the payment question in one go."],
+["sl",0,"Confirm final payment date for all nine confirmed vendors","Shangri-La, Juliet Rose, Waruna Mangala, Enamour, Twin Flames, Just Pretty, NB, OIC, Amour."],
+["ind",0,"Choose songs for all three dances","Couples, siblings, friends. Nothing else in the dance plan can start until the songs are locked."],
+["ind",0,"Book a fixed weekly rehearsal slot","Same day, same time, in everyone's calendar through to 29 November."],
+["ind",0,"Decide choreographer or self-choreographed","If you're hiring, book this week — December choreographers fill up by October."],
+// ---- week 2
+["sl",1,"Set a ceiling for the extras","You have roughly 1.37M LKR of headroom between planned and actual. Decide what it buys before the quotes arrive."],
+["sl",1,"Shortlist the extras you're actually booking","Emcee, content creator, ice cream cart, cocktails, photobooth, cake structure, wedding car, live painter, coffee cart."],
+["sl",1,"Ask Theresa to firm up quotes on your top three extras",""],
+["ind",1,"Couples dance — learn the first section",""],
+["ind",1,"Send the siblings their song and a reference video",""],
+["buy",1,"List the groom's accessories to buy","Bow, belt, shoes, cufflinks, socks."],
+// ---- week 3
+["sl",2,"Book the extras that sell out first","Emcee and cake structure go early for a 30 December date."],
+["sl",2,"Finalise the cake structure design","Confirm delivery timing and transport cost into Shangri-La at the same time."],
+["sl",2,"Agree who distributes invitations in Colombo vs Melbourne",""],
+["ind",2,"Rehearsal",""],
+["ind",2,"Confirm who is actually in the friends dance","Get a yes from each person, not a maybe."],
+// ---- week 4
+["buy",3,"Decide where the alcohol is bought","12L whiskey still to buy, 3.5L already in Sri Lanka, plus 4L gin, 4L vodka, wine, one champagne. Duty-free vs Colombo, and who carries it."],
+["sl",3,"Settle the dry bites question",""],
+["buy",3,"Order the veil",""],
+["buy",3,"Confirm bridal jewellery",""],
+["ind",3,"Rehearsal",""],
+// ---- week 5
+["sl",4,"Confirm the detail with Just Pretty","Start time, guest makeup for three to four people, trial date once you land, transport charge."],
+["sl",4,"Confirm grooming at Cinnamon",""],
+["sl",4,"Confirm three full dressings for immediate family",""],
+["ind",4,"Rehearsal — siblings dance first section",""],
+// ---- week 6
+["sl",5,"Send the bouquet brief to the florist in writing","Mostly white with a few peach roses, two coat flowers, baby's breath, three hair flowers. It's already worded in your pending list."],
+["buy",5,"Buy the poruwa items","Pirith pan, pirith nool, 21 coins, red saree, four parents' gifts, four Jayamangala envelopes at 1,500 cash each."],
+["ind",5,"Rehearsal",""],
+["sl",5,"Book nails and cleanups for late December",""],
+// ---- week 7
+["sl",6,"Get the revised ashtaka quote in writing","Six dancers, four bera, bridal welcome girls, dhol, sashrika table. Your deadline is 20 December but the price should be agreed now."],
+["sl",6,"Sort transport between Cinnamon Lakeside and Shangri-La","Vans or limousine, plus the decorated vehicles."],
+["ind",6,"Rehearsal — full run of the couples dance",""],
+["sl",6,"Review budget against actuals",""],
+// ---- week 8
+["sl",7,"Fill in the Day Agenda responsibility and contact columns","Every blank cell is a decision someone will have to make on the day instead."],
+["sl",7,"Get the auspicious timings from the nekath","Bride leaving, groom leaving, veil, poruwa start and end, registration, wedding end."],
+["sl",7,"Choose the five band and DJ songs","Oil lamp, cake cutting, father-daughter dance, first dance, leaving song."],
+["ind",7,"Rehearsal — friends dance, first full practice",""],
+// ---- week 9
+["sl",8,"Lock the hotel menu, welcome drink and bytes","Then send the final menu to Theresa."],
+["sl",8,"Sign off the floor plan and hall arrangement",""],
+["sl",8,"Confirm the changing rooms",""],
+["ind",8,"Rehearsal",""],
+["buy",8,"Start the packing list","Work straight off the Item List sheet."],
+// ---- week 10
+["sl",9,"Final hotel call with Maleesa","Final menu, final agenda timeline, room situation, and check the minimum revenue figure including taxes."],
+["sl",9,"Confirm Cinnamon Lakeside rooms and guest room snacks",""],
+["ind",9,"Rehearsal — run all three dances once",""],
+// ---- week 11
+["rem",10,"Five-week reminder to every confirmed vendor","Use the tracker at the bottom. Confirm date, arrival time, venue, what's contracted, balance and payment method."],
+["rem",10,"Send the final day programme to Enamour and Twin Flames",""],
+["rem",10,"Send the programme and song list to OIC",""],
+["ind",10,"Rehearsal — last one before the Indian events",""],
+// ---- week 12
+["ind",11,"Final dress prep and run-throughs, Monday to Wednesday",""],
+["ind",11,"Sangeet — Thursday 3 December",""],
+["ind",11,"Hindu wedding — Saturday 5 December",""],
+["rem",11,"Chase anyone who didn't reply to the five-week reminder","The only Sri Lanka task this week."],
+// ---- week 13
+["buy",12,"Buy the remaining alcohol, wine and champagne",""],
+["buy",12,"Buy the dry bites",""],
+["buy",12,"Buy the groom's bow, belt, shoes, cufflinks and socks",""],
+["buy",12,"Confirm thank you cards, peach cake boxes, confetti and sparklers",""],
+["rem",12,"Chase any vendor still unconfirmed",""],
+// ---- week 14
+["sl",13,"Confirm the ashtaka package change","Hard deadline of 20 December in your sheet."],
+["buy",13,"Pack against the Item List","Bride's items, groom's items, poruwa items, photoshoot items, extras."],
+["buy",13,"Pack the hand-over items in one labelled bag","Poru items, cake boxes, confetti and sparklers, confirmed menu, alcohol, dry bites, song pen drive, registrar envelope."],
+["gnd",13,"Write the cash plan","Your parents can't make online payments, so anything card-based stays with you. Everything else becomes a cash envelope."],
+["gnd",13,"Send your parents their arrival list in writing",""],
+// ---- week 15
+["rem",14,"One-week reminder to every vendor — Monday and Tuesday","Confirm arrival times against the Day Agenda."],
+["gnd",14,"Parents land Tuesday 22 — hand over the collection list",""],
+["gnd",14,"Parents collect cake boxes, cake pieces and invitations","Wednesday and Thursday."],
+["gnd",14,"Parents distribute invitations by hand",""],
+["gnd",14,"You land Friday 25",""],
+["sl",14,"Final headcount to the hotel — Saturday 26","Four days out, per your sheet."],
+["gnd",14,"Groom's fitting — Saturday 26",""],
+["gnd",14,"Apurva's trial — Saturday 26",""],
+["gnd",14,"Final planning and decor discussion with Theresa — Saturday 26",""],
+["gnd",14,"Hair and makeup trial — Sunday 27",""],
+["gnd",14,"Check every item against the Item List — Sunday 27",""],
+// ---- week 16
+["gnd",15,"Hand everything over to Theresa — Monday 28",""],
+["gnd",15,"Label a payment envelope per vendor — Monday 28",""],
+["gnd",15,"Confirm decorated vehicles — Tuesday 29",""],
+["gnd",15,"Fresh milk and kiribath to the hotel — Tuesday 29",""],
+["gnd",15,"Retinue snacks, water, straws, first aid, Red Bull — Tuesday 29",""],
+["sl",15,"Wedding — Wednesday 30 December",""],
+["gnd",15,"Collect items from the changing rooms and settle balances — Thursday 31",""]
+];
+
+const VENDORS=[
+ ["Shangri-La","Maleesa · food and beverage",2405643],
+ ["Juliet Rose","floral decoration",348000],
+ ["Waruna Mangala Mandiraya","ashtaka, saubhagya table, dhol",141000],
+ ["Enamour","photography",170000],
+ ["Twin Flames","cinematography",87750],
+ ["Just Pretty","bridal hair and makeup",47500],
+ ["NB","groom's suits",39000],
+ ["OIC","band and DJ",265000],
+ ["Amour Weddings","Theresa 0778633866 · Thiwanka 0774568696",130000],
+ ["Poruwa gifts and Jayamangala","four envelopes at 1,500 each",18000]
+];
+
+/* Shared state lives in Supabase. Personal view settings stay on this device. */
+let S={done:{},move:{},custom:[],del:{},rem:{},hideDone:false,filter:"all"};
+const SHARED=["done","move","custom","del","rem"];
+
+const ME=Math.random().toString(36).slice(2,10);
+let db=null, ready=false, ROOM=null, CFG={url:"",key:""};
+const status=t=>{const el=document.getElementById("saved");if(el)el.textContent=t;};
+const newRoom=()=>Math.random().toString(36).slice(2,8)+Math.random().toString(36).slice(2,8);
+
+function hashParams(){
+  const o={};
+  location.hash.replace(/^#/,"").split("&").forEach(p=>{
+    const i=p.indexOf("="); if(i>0) o[p.slice(0,i)]=decodeURIComponent(p.slice(i+1));
+  });
+  return o;
+}
+function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function recall(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+
+/* Config comes from the shared link first, then from this device. */
+const H=hashParams();
+CFG.url=(H.u||recall("planner-url")||"").replace(/\/+$/,"");
+CFG.key=H.k||recall("planner-key")||"";
+ROOM=H.p||recall("planner-room")||newRoom();
+if(H.u&&H.k){store("planner-url",CFG.url);store("planner-key",CFG.key);}
+store("planner-room",ROOM);
+try{history.replaceState(null,"","#p="+ROOM);}catch(e){}   /* keep the keys out of the address bar */
+
+try{
+  const prefs=JSON.parse(recall("planner-prefs")||"{}");
+  S.filter=prefs.filter||"all"; S.hideDone=!!prefs.hideDone;
+}catch(e){}
+const savePrefs=()=>store("planner-prefs",JSON.stringify({filter:S.filter,hideDone:S.hideDone}));
+
+function applyShared(obj){SHARED.forEach(k=>{if(obj&&obj[k]!==undefined)S[k]=obj[k];});}
+function sharedOnly(){const o={by:ME};SHARED.forEach(k=>o[k]=S[k]);return o;}
+
+function showSetup(on){
+  document.body.classList.toggle("setup",on);
+  document.getElementById("setup").classList.toggle("on",on);
+  if(on){
+    document.getElementById("inUrl").value=CFG.url;
+    document.getElementById("inKey").value=CFG.key;
+  }
+}
+function setupMsg(text,kind){
+  const m=document.getElementById("setupMsg");
+  m.textContent=text; m.className="msg on "+(kind||"bad");
+}
+
+/* Returns "" on success, otherwise a sentence explaining what to fix. */
+async function connect(url,key){
+  if(!/^https:\/\/.+\.supabase\.co$/.test(url)) return "That doesn't look like a project URL. It should be https://something.supabase.co with no path after it.";
+  if(!/^eyJ/.test(key)) return "That doesn't look like the anon key. It's the long value starting with eyJ.";
+  let client;
+  try{client=supabase.createClient(url,key);}catch(e){return "Couldn't start a connection with those details.";}
+  const {error}=await client.from("planner_state").select("id").limit(1);
+  if(error){
+    const m=(error.message||"").toLowerCase();
+    if(m.includes("does not exist")||m.includes("schema cache")) return "Connected, but the planner_state table isn't there yet. Run the SQL setup in Supabase first, then try again.";
+    if(m.includes("jwt")||m.includes("api key")) return "Supabase rejected that key. Check you copied the anon public one rather than service_role.";
+    if(m.includes("permission")||m.includes("row-level")) return "The table is there but the access policies aren't. Re-run the SQL setup.";
+    return "Supabase said: "+error.message;
+  }
+  db=client; CFG={url:url,key:key};
+  store("planner-url",url); store("planner-key",key);
+  return "";
+}
+
+async function start(){
+  const {data,error}=await db.from("planner_state").select("state").eq("id",ROOM).maybeSingle();
+  if(error)throw error;
+  if(data&&data.state) applyShared(data.state);
+  else await db.from("planner_state").insert({id:ROOM,state:sharedOnly()});
+  ready=true; status("Synced."); render();
+
+  db.channel("planner-"+ROOM)
+    .on("postgres_changes",
+        {event:"*",schema:"public",table:"planner_state",filter:"id=eq."+ROOM},
+        p=>{
+          const incoming=p.new&&p.new.state;
+          if(!incoming||incoming.by===ME)return;
+          applyShared(incoming);render();status("Updated just now by the other person.");
+        })
+    .subscribe();
+}
+
+async function load(){
+  render();
+  if(!CFG.url||!CFG.key){showSetup(true);return;}
+  status("Connecting…");
+  const problem=await connect(CFG.url,CFG.key);
+  if(problem){showSetup(true);setupMsg(problem);return;}
+  try{await start();}
+  catch(e){status("Can't reach the planner data. Check your connection, then reload.");}
+}
+
+document.getElementById("connect").onclick=async()=>{
+  const btn=document.getElementById("connect");
+  const url=document.getElementById("inUrl").value.trim().replace(/\/+$/,"");
+  const key=document.getElementById("inKey").value.trim();
+  btn.disabled=true; setupMsg("Checking…","ok");
+  const problem=await connect(url,key);
+  btn.disabled=false;
+  if(problem){setupMsg(problem);return;}
+  setupMsg("Connected. Opening your planner…","ok");
+  showSetup(false);
+  try{await start();}
+  catch(e){status("Connected, but couldn't load the planner. Reload the page.");}
+};
+
+document.getElementById("settings").onclick=()=>showSetup(true);
+
+let timer=null;
+function save(){
+  savePrefs();
+  if(!ready)return;
+  status("Saving…");
+  clearTimeout(timer);
+  timer=setTimeout(async()=>{
+    try{
+      const {error}=await db.from("planner_state")
+        .upsert({id:ROOM,state:sharedOnly(),updated_at:new Date().toISOString()});
+      if(error)throw error;
+      status("Synced.");
+    }catch(e){status("That change didn't save. It's still on screen — try again once you're back online.");}
+  },400);
+}
+
+const d=s=>new Date(s+"T00:00:00");
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function range(a,b){
+  const x=d(a),y=d(b);
+  return x.getMonth()===y.getMonth()
+    ? `${x.getDate()}–${y.getDate()} ${MON[y.getMonth()]}`
+    : `${x.getDate()} ${MON[x.getMonth()]} – ${y.getDate()} ${MON[y.getMonth()]}`;
+}
+function weeksTo(t){
+  const ms=d(t)-new Date(new Date().toDateString());
+  return Math.max(0,Math.round(ms/6048e5));
+}
+
+function allTasks(){
+  const base=T.map((t,i)=>({id:"t"+i,cat:t[0],w:t[1],txt:t[2],note:t[3]||""}));
+  return base.concat(S.custom).filter(t=>!S.del[t.id]);
+}
+
+function render(){
+  document.getElementById("c1").textContent=weeksTo("2026-12-03");
+  document.getElementById("c2").textContent=weeksTo("2026-12-05");
+  document.getElementById("c3").textContent=weeksTo("2026-12-30");
+
+  const tasks=allTasks();
+  const today=new Date(new Date().toDateString());
+  const host=document.getElementById("weeks");
+  host.innerHTML="";
+
+  WEEKS.forEach((w,i)=>{
+    const mine=tasks.filter(t=>(S.move[t.id]!==undefined?S.move[t.id]:t.w)===i);
+    const shown=mine.filter(t=>(S.filter==="all"||t.cat===S.filter)&&!(S.hideDone&&S.done[t.id]));
+    const isNow=today>=d(w.s)&&today<=d(w.e);
+    const done=mine.filter(t=>S.done[t.id]).length;
+
+    const el=document.createElement("section");
+    el.className="week"+(isNow?" now":"")+(w.m?" milestone":"");
+    el.innerHTML=
+      `<div class="whead"><span class="wno">Week ${i+1}</span><span class="wdate">${range(w.s,w.e)}${isNow?" · this week":""}</span>`+
+      `<span class="wprog">${done}/${mine.length}</span></div>`+
+      (w.note?`<p class="wnote">${w.note}</p>`:"");
+
+    const ul=document.createElement("ul");
+    ul.className="tasks";
+    shown.forEach(t=>{
+      const li=document.createElement("li");
+      li.className="t "+t.cat+(S.done[t.id]?" done":"");
+      const cb=document.createElement("input");
+      cb.type="checkbox";cb.checked=!!S.done[t.id];
+      cb.setAttribute("aria-label",t.txt);
+      cb.onchange=()=>{S.done[t.id]=cb.checked;if(!cb.checked)delete S.done[t.id];save();render();};
+      const body=document.createElement("div");
+      body.className="body";
+      body.innerHTML=`<div class="txt">${t.txt}</div>`+(t.note?`<div class="note">${t.note}</div>`:"");
+      const acts=document.createElement("div");
+      acts.className="acts";
+      acts.innerHTML=
+        `<button title="Move to the week before" aria-label="Move earlier">↑</button>`+
+        `<button title="Move to the next week" aria-label="Move later">↓</button>`+
+        `<button title="Remove" aria-label="Remove">×</button>`;
+      const cur=S.move[t.id]!==undefined?S.move[t.id]:t.w;
+      acts.children[0].onclick=()=>{if(cur>0){S.move[t.id]=cur-1;save();render();}};
+      acts.children[1].onclick=()=>{if(cur<WEEKS.length-1){S.move[t.id]=cur+1;save();render();}};
+      acts.children[2].onclick=()=>{S.del[t.id]=1;save();render();};
+      li.append(cb,body,acts);
+      ul.appendChild(li);
+    });
+
+    const add=document.createElement("li");
+    add.className="addrow";
+    const sel=document.createElement("select");
+    Object.keys(CATS).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=CATS[k];sel.appendChild(o);});
+    sel.value=S.filter==="all"?"sl":S.filter;
+    const inp=document.createElement("input");
+    inp.placeholder="Add something to week "+(i+1);
+    inp.onkeydown=ev=>{
+      if(ev.key==="Enter"&&inp.value.trim()){
+        S.custom.push({id:"c"+Date.now(),cat:sel.value,w:i,txt:inp.value.trim(),note:""});
+        inp.value="";save();render();
+      }
+    };
+    add.append(inp,sel);
+    ul.appendChild(add);
+    el.appendChild(ul);
+    host.appendChild(el);
+  });
+
+  // vendor tracker
+  const tb=document.getElementById("vbody"), st=document.getElementById("vstack");
+  tb.innerHTML="";st.innerHTML="";
+  let total=0;
+  VENDORS.forEach((v,i)=>{
+    total+=v[2];
+    const k5="v"+i+"a",k1="v"+i+"b";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="v"><b>${v[0]}</b><span>${v[1]}</span></td><td class="amt">${v[2].toLocaleString()}</td>`+
+      `<td class="c"><input type="checkbox" ${S.rem[k5]?"checked":""} aria-label="Five week reminder to ${v[0]}"></td>`+
+      `<td class="c"><input type="checkbox" ${S.rem[k1]?"checked":""} aria-label="One week reminder to ${v[0]}"></td>`;
+    tr.querySelectorAll("input")[0].onchange=e=>{S.rem[k5]=e.target.checked;save();};
+    tr.querySelectorAll("input")[1].onchange=e=>{S.rem[k1]=e.target.checked;save();};
+    tb.appendChild(tr);
+
+    const card=document.createElement("div");
+    card.className="vcard";
+    card.innerHTML=`<b>${v[0]}</b><div class="meta">${v[1]} · ${v[2].toLocaleString()} LKR</div>`+
+      `<label><input type="checkbox" ${S.rem[k5]?"checked":""}> 5 weeks</label>`+
+      `<label><input type="checkbox" ${S.rem[k1]?"checked":""}> 1 week</label>`;
+    card.querySelectorAll("input")[0].onchange=e=>{S.rem[k5]=e.target.checked;save();render();};
+    card.querySelectorAll("input")[1].onchange=e=>{S.rem[k1]=e.target.checked;save();render();};
+    st.appendChild(card);
+  });
+  document.getElementById("vtotal").textContent=total.toLocaleString();
+
+  document.querySelectorAll("#filters .chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.f===S.filter)));
+  document.getElementById("hideDone").textContent=S.hideDone?"Show done":"Hide done";
+
+  if(!window.__scrolled){
+    window.__scrolled=true;
+    const n=document.querySelector(".week.now");
+    if(n)setTimeout(()=>n.scrollIntoView({block:"start",behavior:"auto"}),60);
+  }
+}
+
+document.querySelectorAll("#filters .chip").forEach(c=>{
+  c.onclick=()=>{S.filter=c.dataset.f;save();render();};
+});
+document.getElementById("hideDone").onclick=()=>{S.hideDone=!S.hideDone;save();render();};
+document.getElementById("reset").onclick=()=>{
+  if(!confirm("This clears every tick for both of you. Continue?"))return;
+  const f=S.filter,h=S.hideDone;
+  S={done:{},move:{},custom:[],del:{},rem:{},filter:f,hideDone:h};
+  save();render();
+};
+
+document.getElementById("copylink").onclick=async()=>{
+  if(!ready){status("Connect to Supabase first — the link needs it.");return;}
+  const url=location.origin+location.pathname+"#p="+ROOM+
+            "&u="+encodeURIComponent(CFG.url)+"&k="+encodeURIComponent(CFG.key);
+  try{await navigator.clipboard.writeText(url);status("Link copied. It sets itself up on their device — no code, no keys to type.");}
+  catch(e){prompt("Copy this link:",url);}
+};
+
+load();
+</script>
